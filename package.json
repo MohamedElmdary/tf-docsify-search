@@ -2,6 +2,11 @@
   "name": "tf-docsify-search",
   "version": "1.0.0",
   "description": "Search plugin for docsify",
+  "scripts": {
+    "dev": "lite-server",
+    "build": "tsc",
+    "build:watch": "tsc -w"
+  },
   "main": "index.ts",
   "repository": "https://github.com/MohamedElmdary/tf-docsify-search",
   "author": "MohamedElmdary",
