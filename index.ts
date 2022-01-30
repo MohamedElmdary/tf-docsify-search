@@ -82,7 +82,9 @@ function tfSearchPlugin(configs: Partial<IConfigs> = {}) {
     const searchButton = _createElement("button", {
       text: configs.texts?.button,
       attrs: {
+        disabled: "true",
         type: "submit",
+        class: "disabled",
         style: `
           background-color: ${configs.colors?.buttonBackground};
           border: none;
@@ -104,6 +106,7 @@ function tfSearchPlugin(configs: Partial<IConfigs> = {}) {
 
     const searchArea = _createElement("div", {
       attrs: {
+        class: "closed",
         style: `
           position: fixed;
           top: 0;
@@ -113,9 +116,48 @@ function tfSearchPlugin(configs: Partial<IConfigs> = {}) {
           background-color: ${configs.colors?.background};
           display: flex;
           justify-content: center;
+          z-index: 999
         `,
       },
       children: [searchContainer],
+    });
+
+    const globalStyle = _createElement("style", {
+      text: `
+        .disabled {
+          cursor: initial !important;
+          background-color: #ccc !important;
+        }
+
+        .closed {
+          visibility: hidden !important;
+          opacity: 0 !important;
+          event-pointer: none !important;
+          display: none !important;
+        }
+      `
+    })
+
+    const searchAreaButton = _createElement("button", {
+      text: 'X',
+      attrs: {
+        style: `
+          position: fixed;
+          top: 15px;
+          right: 15px;
+          border: none;
+          z-index: 1000;
+          background-color: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          cursor: pointer;
+          height: 50px;
+          width: 50px;
+          border-radius: 50%;
+          border: 1px solid #ccc;
+        `
+      }
     });
 
     const searchPluginHTML = _createElement("div", {
@@ -124,12 +166,28 @@ function tfSearchPlugin(configs: Partial<IConfigs> = {}) {
           font-family: ${configs.fontFamily};
         `
       },
-      children: [searchArea]
+      children: [globalStyle, searchAreaButton, searchArea]
     })
 
     hooks.ready(() => {
       document.body.appendChild(searchPluginHTML);
-      searchInput.focus();
+
+      searchAreaButton.addEventListener('click', () => {
+        searchArea.classList.toggle("closed");
+        if (!searchArea.classList.contains("closed")) {
+          searchInput.focus();
+        }
+      });
+
+      searchInput.addEventListener("input", () => {
+        const isEmpty = searchInput.value.trim() === "";
+        searchButton.disabled = isEmpty;
+        if  (isEmpty) {
+          searchButton.classList.add("disabled");
+        } else {
+          searchButton.classList.remove("disabled");
+        }
+      });
 
       searchContainer.addEventListener("submit", (e) => {
         e.preventDefault();
